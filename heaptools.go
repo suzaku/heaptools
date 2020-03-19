@@ -22,11 +22,16 @@ func (h *sliceHeap) Less(i, j int) bool {
 }
 
 func (h *sliceHeap) Swap(i, j int) {
+	if i == j {
+		return
+	}
 	h.swapper(i, j)
 }
 
 func (h *sliceHeap) Push(x interface{}) {
-	h.slice.Elem().Set(reflect.Append(h.slice.Elem(), reflect.ValueOf(x)))
+	e := h.slice.Elem()
+	e.Set(reflect.Append(e, reflect.ValueOf(x)))
+	h.swapper = reflect.Swapper(e.Interface())
 }
 
 func (h *sliceHeap) Pop() interface{} {
@@ -37,10 +42,11 @@ func (h *sliceHeap) Pop() interface{} {
 }
 
 func NewSliceHeap(slice interface{}, less func(i, j int) bool) heap.Interface {
+	v := reflect.ValueOf(slice)
 	sh := &sliceHeap{
-		slice:   reflect.ValueOf(slice),
+		slice:   v,
 		less:    less,
-		swapper: reflect.Swapper(reflect.ValueOf(slice).Elem().Interface()),
+		swapper: reflect.Swapper(v.Elem().Interface()),
 	}
 	heap.Init(sh)
 	return sh
