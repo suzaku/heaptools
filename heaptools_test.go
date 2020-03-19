@@ -1,8 +1,10 @@
-package heaptools
+package heaptools_test
 
 import (
 	"container/heap"
 	"testing"
+
+	"github.com/suzaku/heaptools"
 )
 
 type Item struct {
@@ -13,7 +15,7 @@ func TestNewSliceHeap(t *testing.T) {
 	t.Parallel()
 	t.Run("Should work with slices of primitive type", func(t *testing.T) {
 		s := []int{1, 9, 8, 4}
-		sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+		sh := heaptools.NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
 		assertEq(t, 1, heap.Pop(sh))
 		heap.Push(sh, 10)
 		assertEq(t, 4, heap.Pop(sh))
@@ -31,7 +33,7 @@ func TestNewSliceHeap(t *testing.T) {
 			{value: "one"},
 			{value: "four"},
 		}
-		sh := NewSliceHeap(&s, func(i, j int) bool {
+		sh := heaptools.NewSliceHeap(&s, func(i, j int) bool {
 			vi, vj := s[i].value, s[j].value
 			if len(vi) == len(vj) {
 				return vi < vj
@@ -72,7 +74,7 @@ func BenchmarkNewSliceHeap(b *testing.B) {
 		s := []int{4, 3, 2, 1, 8, 7, 5, 6, 10, 9, 11, 12, 14, 13, 16, 15}
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			sh = NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+			sh = heaptools.NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
 		}
 		if sh.Len() != len(s) {
 			b.Fail()
@@ -80,7 +82,7 @@ func BenchmarkNewSliceHeap(b *testing.B) {
 	})
 	b.Run("push", func(b *testing.B) {
 		var s []int
-		sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+		sh := heaptools.NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
 			heap.Push(sh, i)
@@ -91,7 +93,7 @@ func BenchmarkNewSliceHeap(b *testing.B) {
 	})
 	b.Run("pop", func(b *testing.B) {
 		var s []int
-		sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+		sh := heaptools.NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
 		for i := 0; i < b.N; i++ {
 			heap.Push(sh, i)
 		}
