@@ -65,3 +65,58 @@ func assertContainValue(t *testing.T, expect string, got interface{}) {
 		}
 	}
 }
+
+func BenchmarkPushPop(b *testing.B) {
+	var s []int
+	sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 3; j++ {
+			heap.Push(sh, j)
+		}
+		for j := 0; j < 3; j++ {
+			if heap.Pop(sh) != j {
+				b.Fail()
+			}
+		}
+	}
+	if sh.Len() != 0 {
+		b.Fail()
+	}
+}
+
+// Copied from https://golang.org/src/container/heap/example_intheap_test.go
+type IntHeap []int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *IntHeap) Push(x interface{}) {
+	// Push and Pop use pointer receivers because they modify the slice's length,
+	// not just its contents.
+	*h = append(*h, x.(int))
+}
+func (h *IntHeap) Pop() interface{} {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+func BenchmarkPushPopWithExplicitImplementation(b *testing.B) {
+	sh := &IntHeap{}
+	heap.Init(sh)
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 3; j++ {
+			heap.Push(sh, j)
+		}
+		for j := 0; j < 3; j++ {
+			if heap.Pop(sh) != j {
+				b.Fail()
+			}
+		}
+	}
+	if sh.Len() != 0 {
+		b.Fail()
+	}
+}
