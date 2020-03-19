@@ -25,13 +25,20 @@ func (h *sliceHeap) Swap(i, j int) {
 	if i == j {
 		return
 	}
+	if h.swapper == nil {
+		h.swapper = reflect.Swapper(h.slice.Elem().Interface())
+	}
 	h.swapper(i, j)
 }
 
 func (h *sliceHeap) Push(x interface{}) {
 	e := h.slice.Elem()
+	slicePtr := e.Pointer()
 	e.Set(reflect.Append(e, reflect.ValueOf(x)))
-	h.swapper = reflect.Swapper(e.Interface())
+	// If the pointer to the first element of the slice changes, we need a new Swapper
+	if e.Pointer() != slicePtr {
+		h.swapper = nil
+	}
 }
 
 func (h *sliceHeap) Pop() interface{} {
