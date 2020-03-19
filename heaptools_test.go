@@ -66,22 +66,43 @@ func assertContainValue(t *testing.T, expect string, got interface{}) {
 	}
 }
 
-func BenchmarkPushPop(b *testing.B) {
-	var s []int
-	sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < 3; j++ {
-			heap.Push(sh, j)
+func BenchmarkNewSliceHeap(b *testing.B) {
+	b.Run("init", func(b *testing.B) {
+		var sh heap.Interface
+		s := []int{4, 3, 2, 1, 8, 7, 5, 6, 10, 9, 11, 12, 14, 13, 16, 15}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			sh = NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
 		}
-		for j := 0; j < 3; j++ {
-			if heap.Pop(sh) != j {
-				b.Fail()
-			}
+		if sh.Len() != len(s) {
+			b.Fail()
 		}
-	}
-	if sh.Len() != 0 {
-		b.Fail()
-	}
+	})
+	b.Run("push", func(b *testing.B) {
+		var s []int
+		sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			heap.Push(sh, i)
+		}
+		if sh.Len() != b.N {
+			b.Fail()
+		}
+	})
+	b.Run("pop", func(b *testing.B) {
+		var s []int
+		sh := NewSliceHeap(&s, func(i, j int) bool { return s[i] < s[j] })
+		for i := 0; i < b.N; i++ {
+			heap.Push(sh, i)
+		}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			heap.Pop(sh)
+		}
+		if sh.Len() != 0 {
+			b.Fail()
+		}
+	})
 }
 
 // Copied from https://golang.org/src/container/heap/example_intheap_test.go
@@ -103,20 +124,42 @@ func (h *IntHeap) Pop() interface{} {
 	return x
 }
 
-func BenchmarkPushPopWithExplicitImplementation(b *testing.B) {
-	sh := &IntHeap{}
-	heap.Init(sh)
-	for i := 0; i < b.N; i++ {
-		for j := 0; j < 3; j++ {
-			heap.Push(sh, j)
+func BenchmarkExplicitImplementation(b *testing.B) {
+	b.Run("init", func(b *testing.B) {
+		var sh heap.Interface
+		nums := IntHeap{4, 3, 2, 1, 8, 7, 5, 6, 10, 9, 11, 12, 14, 13, 16, 15}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			sh = &nums
+			heap.Init(sh)
 		}
-		for j := 0; j < 3; j++ {
-			if heap.Pop(sh) != j {
-				b.Fail()
-			}
+		if sh.Len() != len(nums) {
+			b.Fail()
 		}
-	}
-	if sh.Len() != 0 {
-		b.Fail()
-	}
+	})
+	b.Run("push", func(b *testing.B) {
+		sh := &IntHeap{}
+		heap.Init(sh)
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			heap.Push(sh, i)
+		}
+		if sh.Len() != b.N {
+			b.Fail()
+		}
+	})
+	b.Run("pop", func(b *testing.B) {
+		sh := &IntHeap{}
+		heap.Init(sh)
+		for i := 0; i < b.N; i++ {
+			heap.Push(sh, i)
+		}
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			heap.Pop(sh)
+		}
+		if sh.Len() != 0 {
+			b.Fail()
+		}
+	})
 }
