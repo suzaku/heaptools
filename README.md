@@ -1,4 +1,4 @@
-# heaptools
+# heaptools [![Build Status](https://travis-ci.org/suzaku/heaptools.svg?branch=master)](https://travis-ci.org/suzaku/heaptools)
 
 heaptools provide helper functions to make initializing slice heaps easier.
 
