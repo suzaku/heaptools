@@ -6,6 +6,10 @@ heaptools provide helper functions to make initializing slice heaps easier.
 
 `go get github.com/suzaku/heaptools`
 
+## Doc
+
+[Document](https://pkg.go.dev/github.com/suzaku/heaptools)
+
 ## Example
 
 ```go
