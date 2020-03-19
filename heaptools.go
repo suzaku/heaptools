@@ -1,3 +1,4 @@
+// heaptools provide helper functions to make initializing slice heaps easier.
 package heaptools
 
 import (
@@ -48,6 +49,11 @@ func (h *sliceHeap) Pop() interface{} {
 	return last.Interface()
 }
 
+// NewSliceHeap returns an initialized heap for any slice.
+// The slice must be given as a pointer because we need it to be modifiable
+// when implementing methods like swap.
+// The returned value implements heap.Interface and initialized, so it can be
+// used directly with functions like heap.Push and heap.Pop.
 func NewSliceHeap(slice interface{}, less func(i, j int) bool) heap.Interface {
 	v := reflect.ValueOf(slice)
 	sh := &sliceHeap{
